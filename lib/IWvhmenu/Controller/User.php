@@ -16,8 +16,8 @@ function iw_vhmenu_user_getFile($args)
 /*	if (!SecurityUtil::checkPermission('iw_vhmenu::', "::", ACCESS_READ)) {
 		return LogUtil::registerError(__('Sorry! No authorization to access this module.', $dom), 403);
 	}*/
-	$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-	return pnModFunc('iw_main', 'user', 'getFile', array('fileName' => $fileName,
+	$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+	return ModUtil::func('iw_main', 'user', 'getFile', array('fileName' => $fileName,
 								'sv' => $sv));
 
 }

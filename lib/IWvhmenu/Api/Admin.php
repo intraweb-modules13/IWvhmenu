@@ -25,7 +25,7 @@ function iw_vhmenu_adminapi_getall($args)
 		$active = "";
 	}
 
-	$pntable = pnDBGetTables();
+	$pntable = DBUtil::getTables();
 	$c = $pntable['iw_vhmenu_column'];
 	if($id_parent == '-1'){
 		$where = "$active";
@@ -94,7 +94,7 @@ function iw_vhmenu_adminapi_create($args)
 	}
 
 	// Let any hooks know that we have created a new item.
-	pnModCallHooks('item', 'create', $item['mid'], array('module' => 'iw_vhmenu'));
+	ModUtil::callHooks('item', 'create', $item['mid'], array('module' => 'iw_vhmenu'));
 
 	// Return the id of the newly created item to the calling process
 	return $item['mid'];
@@ -147,7 +147,7 @@ function iw_vhmenu_adminapi_create_sub($args)
 	}
 
 	// Let any hooks know that we have created a new item.
-	pnModCallHooks('item', 'create', $item['mid'], array('module' => 'iw_vhmenu'));
+	ModUtil::callHooks('item', 'create', $item['mid'], array('module' => 'iw_vhmenu'));
 
 	// Return the id of the newly created item to the calling process
 	return $item['mid'];
@@ -210,7 +210,7 @@ function iw_vhmenu_adminapi_delete($args)
 
 	foreach($submenusId_array as $mid){
 		//Cridem la funciÃ³ get que retorna les dades
-		$item = pnModAPIFunc('iw_vhmenu','admin','get',array('mid' => $mid));
+		$item = ModUtil::apiFunc('iw_vhmenu','admin','get',array('mid' => $mid));
 		if (!$item) {
 			return LogUtil::registerError (__('No such item found.', $dom));
 		}
@@ -221,7 +221,7 @@ function iw_vhmenu_adminapi_delete($args)
 		}
 
 		// Let any hooks know that we have deleted an item.
-		pnModCallHooks('item', 'delete', $mid, array('module' => 'iw_vhmenu'));
+		ModUtil::callHooks('item', 'delete', $mid, array('module' => 'iw_vhmenu'));
 	}
 	// Let the calling process know that we have finished successfully
 	return true;
@@ -249,7 +249,7 @@ function iw_vhmenu_adminapi_update($args)
 	}
 
 	//Cridem la funciÃ³ get que retorna les dades
-	$item = pnModAPIFunc('iw_vhmenu','admin','get',array('mid' => $mid));
+	$item = ModUtil::apiFunc('iw_vhmenu','admin','get',array('mid' => $mid));
 	if (!$item) {
 		return LogUtil::registerError (__('No such item found.', $dom));
 	}
@@ -266,7 +266,7 @@ function iw_vhmenu_adminapi_update($args)
 					'image1' => $args['image1'],
 					'image2' => $args['image2']);
 
-	$pntable =& pnDBGetTables();
+	$pntable =& DBUtil::getTables();
 
 	$c = $pntable['iw_vhmenu_column'];
 	$where = "$c[mid]=$mid";
@@ -276,7 +276,7 @@ function iw_vhmenu_adminapi_update($args)
 	}
 
 	// Let any hooks know that we have updated an item.
-	pnModCallHooks('item', 'update', $items['mid'], array('module' => 'iw_vhmenu'));
+	ModUtil::callHooks('item', 'update', $items['mid'], array('module' => 'iw_vhmenu'));
 
     	// Let the calling process know that we have finished successfully
 	return true;
@@ -304,14 +304,14 @@ function iw_vhmenu_adminapi_put_order($args)
 	}
 
 	//Cridem la funciÃ³ get que retorna les dades
-	$item = pnModAPIFunc('iw_vhmenu','admin','get',array('mid' => $mid));
+	$item = ModUtil::apiFunc('iw_vhmenu','admin','get',array('mid' => $mid));
 	if (!$item) {
 		return LogUtil::registerError (__('No such item found.', $dom));
 	}
 
 	$items = array('iorder' => $args['iorder']);
 
-	$pntable =& pnDBGetTables();
+	$pntable =& DBUtil::getTables();
 
 	$c = $pntable['iw_vhmenu_column'];
 	$where = "$c[mid]=$mid";
@@ -321,7 +321,7 @@ function iw_vhmenu_adminapi_put_order($args)
 	}
 
 	// Let any hooks know that we have updated an item.
-	pnModCallHooks('item', 'update', $item['mid'], array('module' => 'iw_vhmenu'));
+	ModUtil::callHooks('item', 'update', $item['mid'], array('module' => 'iw_vhmenu'));
 
     	// Let the calling process know that we have finished successfully
 	return true;
@@ -349,14 +349,14 @@ function iw_vhmenu_adminapi_modify_grup($args)
 	}
 
 	//Cridem la funciÃ³ get que retorna les dades
-	$item = pnModAPIFunc('iw_vhmenu','admin','get',array('mid' => $mid));
+	$item = ModUtil::apiFunc('iw_vhmenu','admin','get',array('mid' => $mid));
 	if (!$item) {
 		return LogUtil::registerError (__('No such item found.', $dom));
 	}
 
 	$items = array('groups' => $args['groups']);
 
-	$pntable =& pnDBGetTables();
+	$pntable =& DBUtil::getTables();
 
 	$c = $pntable['iw_vhmenu_column'];
 	$where = "$c[mid]=$mid";
@@ -366,7 +366,7 @@ function iw_vhmenu_adminapi_modify_grup($args)
 	}
 
 	// Let any hooks know that we have updated an item.
-	pnModCallHooks('item', 'update', $item['mid'], array('module' => 'iw_vhmenu'));
+	ModUtil::callHooks('item', 'update', $item['mid'], array('module' => 'iw_vhmenu'));
 
     	// Let the calling process know that we have finished successfully
 	return true;
@@ -396,7 +396,7 @@ function iw_vhmenu_adminapi_move_level($args)
 	}
 
 	//Cridem la funciÃ³ get que retorna les dades
-	$item = pnModAPIFunc('iw_vhmenu','admin','get',array('mid' => $mid));
+	$item = ModUtil::apiFunc('iw_vhmenu','admin','get',array('mid' => $mid));
 	if (!$item) {
 		return LogUtil::registerError (__('No such item found.', $dom));
 	}
@@ -404,7 +404,7 @@ function iw_vhmenu_adminapi_move_level($args)
 	$items = array('iorder' => '0',
 			'id_parent' => $id_parent);
 
-	$pntable =& pnDBGetTables();
+	$pntable =& DBUtil::getTables();
 
 	$c = $pntable['iw_vhmenu_column'];
 	$where = "$c[mid]=$mid";
@@ -414,7 +414,7 @@ function iw_vhmenu_adminapi_move_level($args)
 	}
 
 	// Let any hooks know that we have updated an item.
-	pnModCallHooks('item', 'update', $mid, array('module' => 'iw_vhmenu'));
+	ModUtil::callHooks('item', 'update', $mid, array('module' => 'iw_vhmenu'));
 
     	// Let the calling process know that we have finished successfully
 	return true;

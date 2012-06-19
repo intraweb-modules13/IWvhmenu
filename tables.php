@@ -15,7 +15,7 @@
  * @author Albert PÃ©rez Monfort (aperezm@xtec.cat)
  * @return module tables information
  */
-function iw_vhmenu_pntables()
+function iw_vhmenu_tables()
 {
 	// Initialise table array
 	$pntable = array();

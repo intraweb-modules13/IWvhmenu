@@ -13,8 +13,8 @@ function iw_vhmenu_admin_main()
 	}
 
 	// Checks if module iw_main is installed. If not returns error
-	$modid = pnModGetIDFromName('iw_main');
-	$modinfo = pnModGetInfo($modid);
+	$modid = ModUtil::getIdFromName('iw_main');
+	$modinfo = ModUtil::getInfo($modid);
 	
 	if($modinfo['state'] != 3) {
 		return LogUtil::registerError (__('Module iw_main is needed. You have to install the iw_main module previously to install it.', $dom));
@@ -22,30 +22,30 @@ function iw_vhmenu_admin_main()
 	
 	// Check if the version needed is correct. If not return error
 	$versionNeeded = '2.0';
-	if(!pnModFunc('iw_main', 'admin', 'checkVersion',
+	if(!ModUtil::func('iw_main', 'admin', 'checkVersion',
 	               array('version' => $versionNeeded))){
 		return false;
 	}
 
 	// Create output object
-	$pnRender = pnRender::getInstance('iw_vhmenu',false);
+	$view = Zikula_View::getInstance('iw_vhmenu',false);
 
 	// Gets the groups information
-	$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-	$grupsInfo = pnModFunc('iw_main', 'user', 'getAllGroupsInfo',
+	$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+	$grupsInfo = ModUtil::func('iw_main', 'user', 'getAllGroupsInfo',
 	                        array('sv' => $sv));
 
     // Get the menu
-    $menu = pnModFunc('iw_vhmenu', 'admin', 'getsubmenu',
+    $menu = ModUtil::func('iw_vhmenu', 'admin', 'getsubmenu',
 	                   array('id_parent' => 0,
 	                         'grups_info' => $grupsInfo,
 	                         'level' => 0));
 
 	// Pass the data to the template
-	$pnRender->assign('menuarray', $menu);
-	$pnRender->assign('image_folder', pnModGetVar('iw_vhmenu', 'imagedir'));
+	$view->assign('menuarray', $menu);
+	$view->assign('image_folder', ModUtil::getVar('iw_vhmenu', 'imagedir'));
 
-	return $pnRender->fetch('iw_vhmenu_admin_main.htm');
+	return $view->fetch('iw_vhmenu_admin_main.htm');
 }
 
 
@@ -63,10 +63,10 @@ function iw_vhmenu_admin_getsubmenu ($args)
 	}
 
 	// Create output object
-	$pnRender = pnRender::getInstance('iw_vhmenu',false);
+	$view = Zikula_View::getInstance('iw_vhmenu',false);
 
 	// Get the data of each item
-	$SubMenuData = pnModAPIFunc('iw_vhmenu', 'admin', 'getall', array( 'id_parent' => $args['id_parent'] ));
+	$SubMenuData = ModUtil::apiFunc('iw_vhmenu', 'admin', 'getall', array( 'id_parent' => $args['id_parent'] ));
 
 	// This provides a way to know if there is another option in the same level, so down arrow must be shown or not
 	$iter_number = count($SubMenuData);
@@ -117,16 +117,16 @@ function iw_vhmenu_admin_getsubmenu ($args)
 					'active' 	=> $option['active'],
 					'groups_array'	=> $groups_array,
 					'bg_image' 	=> $option['bg_image'],
-					'imagepath' 	=> pnModGetVar('iw_vhmenu', 'imagedir').'/'.$option['bg_image'],
+					'imagepath' 	=> ModUtil::getVar('iw_vhmenu', 'imagedir').'/'.$option['bg_image'],
 					'id_parent'	=> $option['id_parent'],
 					'iorder'	=> $option['iorder'],
 					'grafic' 	=> $option['grafic'],
-					'imagepath1'    => pnModGetVar('iw_vhmenu', 'imagedir').'/'.$option['image1'],
-					'imagepath2'    => pnModGetVar('iw_vhmenu', 'imagedir').'/'.$option['image2'],
+					'imagepath1'    => ModUtil::getVar('iw_vhmenu', 'imagedir').'/'.$option['image1'],
+					'imagepath2'    => ModUtil::getVar('iw_vhmenu', 'imagedir').'/'.$option['image2'],
 					'padding' 	=> $padding,
 					'downarrow'	=> $downarrow );
 		// Add the options
-		$SubmenuData = pnModFunc('iw_vhmenu', 'admin', 'getsubmenu', array(	'id_parent' => $option['mid'], 												'grups_info' => $args['grups_info'],
+		$SubmenuData = ModUtil::func('iw_vhmenu', 'admin', 'getsubmenu', array(	'id_parent' => $option['mid'], 												'grups_info' => $args['grups_info'],
 											'level' => $args['level'] + 1 ));
 		if (!empty($SubmenuData)) { // If the menu has items, save them
 			foreach ($SubmenuData as $item) // This foreach converts an n-dimension array in a 1-dimension array, suitable for the template
@@ -145,12 +145,12 @@ function iw_vhmenu_admin_getsubmenu ($args)
 function iw_vhmenu_admin_module()
 {
 	// Create output object
-	$pnRender = pnRender::getInstance('iw_vhmenu',false);
+	$view = Zikula_View::getInstance('iw_vhmenu',false);
 
-	$module = pnModFunc('iw_main', 'user', 'module_info', array('module_name' => 'iw_vhmenu', 'type' => 'admin'));
+	$module = ModUtil::func('iw_main', 'user', 'module_info', array('module_name' => 'iw_vhmenu', 'type' => 'admin'));
 
-	$pnRender -> assign('module', $module);
-	return $pnRender -> fetch('iw_vhmenu_user_module.htm');
+	$view -> assign('module', $module);
+	return $view -> fetch('iw_vhmenu_user_module.htm');
 }
 
 /**
@@ -186,15 +186,15 @@ function iw_vhmenu_admin_new($args)
 	}
 
 	// Create output object
-	$pnRender = pnRender::getInstance('iw_vhmenu',false);
+	$view = Zikula_View::getInstance('iw_vhmenu',false);
 
 	// Init the height i width values
-	$height = ($height == 0) ? pnModGetVar('iw_vhmenu', 'height') : $height;
-	$width = ($width == 0) ? pnModGetVar('iw_vhmenu', 'width') : $width;
+	$height = ($height == 0) ? ModUtil::getVar('iw_vhmenu', 'height') : $height;
+	$width = ($width == 0) ? ModUtil::getVar('iw_vhmenu', 'width') : $width;
 		
 	// A copy is required, so the information is loaded
 	if(!empty($mid) && !$canvi){
-		$registre = pnModAPIFunc('iw_vhmenu', 'admin', 'get', array('mid' => $mid));
+		$registre = ModUtil::apiFunc('iw_vhmenu', 'admin', 'get', array('mid' => $mid));
 		if (!$registre) {
 			return LogUtil::registerError (__('Menu option not found', $dom));
 		}
@@ -214,7 +214,7 @@ function iw_vhmenu_admin_new($args)
 	}
 
 	// Get the images available in images directory
-	$dir = pnModGetVar('iw_main', 'documentRoot').'/'.pnModGetVar('iw_vhmenu', 'imagedir');
+	$dir = ModUtil::getVar('iw_main', 'documentRoot').'/'.ModUtil::getVar('iw_vhmenu', 'imagedir');
 
 	if (is_dir($dir)) {
 		if ($dh = opendir($dir)) {
@@ -255,46 +255,46 @@ function iw_vhmenu_admin_new($args)
 	// $subgroups = $dades -> Subgrups($group,__('All', $dom));
 
 	// get the intranet groups
-	$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-	$grups = pnModFunc('iw_main', 'user', 'getAllGroups', array('plus' => __('All', $dom),
-																'less' => pnModGetVar('iw_myrole', 'rolegroup'),
+	$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+	$grups = ModUtil::func('iw_main', 'user', 'getAllGroups', array('plus' => __('All', $dom),
+																'less' => ModUtil::getVar('iw_myrole', 'rolegroup'),
 																'sv' => $sv));
 	$grups[] = array('id' => '-1',
 				'name' => __('Unregistered', $dom));
 
 	// get the intranet groups again without the possibility of all the groups
-	if(pnModAvailable('iw_webbox')){
-		$pnRender -> assign('iwwebbox', true);
+	if(ModUtil::available('iw_webbox')){
+		$view -> assign('iwwebbox', true);
 	}
-	$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-	$grups1 = pnModFunc('iw_main', 'user', 'getAllGroups', array('sv' => $sv,
-																	'less' => pnModGetVar('iw_myrole', 'rolegroup')));
-	$security = pnSecGenAuthKey();
-	$pnRender -> assign('security', $security);
-	$pnRender -> assign('mid', $mid);
-	$pnRender -> assign('text', $text);
-	$pnRender -> assign('width', $width);
-	$pnRender -> assign('height', $height);
-	$pnRender -> assign('descriu', $descriu);
-	$pnRender -> assign('bg_image', $bg_image);
-	$pnRender -> assign('active', $active);
-	$pnRender -> assign('m', $m);
-	$pnRender -> assign('accio', $accio);
-	$pnRender -> assign('acciosubmit', $acciosubmit);	
-	$pnRender -> assign('target', $target);
-	$pnRender -> assign('url', $url);
-	$pnRender -> assign('id_parent', $id_parent);
-	$pnRender -> assign('images', $images);
-	$pnRender -> assign('initImagePath', pnModGetVar('iw_vhmenu', 'imagedir'));
-	$pnRender -> assign('grafic', $grafic);
-	$pnRender -> assign('image1', $image1);
-	$pnRender -> assign('image2', $image2);
-	$pnRender -> assign('grups', $grups);
-	$pnRender -> assign('grup', $grup);
-	$pnRender -> assign('subgrups', $subgrups);
-	$pnRender -> assign('subgrup', $subgrup);
+	$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+	$grups1 = ModUtil::func('iw_main', 'user', 'getAllGroups', array('sv' => $sv,
+																	'less' => ModUtil::getVar('iw_myrole', 'rolegroup')));
+	$security = SecurityUtil::generateAuthKey();
+	$view -> assign('security', $security);
+	$view -> assign('mid', $mid);
+	$view -> assign('text', $text);
+	$view -> assign('width', $width);
+	$view -> assign('height', $height);
+	$view -> assign('descriu', $descriu);
+	$view -> assign('bg_image', $bg_image);
+	$view -> assign('active', $active);
+	$view -> assign('m', $m);
+	$view -> assign('accio', $accio);
+	$view -> assign('acciosubmit', $acciosubmit);	
+	$view -> assign('target', $target);
+	$view -> assign('url', $url);
+	$view -> assign('id_parent', $id_parent);
+	$view -> assign('images', $images);
+	$view -> assign('initImagePath', ModUtil::getVar('iw_vhmenu', 'imagedir'));
+	$view -> assign('grafic', $grafic);
+	$view -> assign('image1', $image1);
+	$view -> assign('image2', $image2);
+	$view -> assign('grups', $grups);
+	$view -> assign('grup', $grup);
+	$view -> assign('subgrups', $subgrups);
+	$view -> assign('subgrup', $subgrup);
 
-	return $pnRender -> fetch('iw_vhmenu_admin_new.htm');
+	return $view -> fetch('iw_vhmenu_admin_new.htm');
 }
 
 /**
@@ -332,11 +332,11 @@ function iw_vhmenu_admin_new_sub($args)
 	}
 
 	// Create output object
-	$pnRender = pnRender::getInstance('iw_vhmenu',false);
+	$view = Zikula_View::getInstance('iw_vhmenu',false);
 
 	// Get a menu item
 	if(!empty($mid) && !$canvi){
-		$registre = pnModAPIFunc('iw_vhmenu', 'admin', 'get', array('mid' => $mid));
+		$registre = ModUtil::apiFunc('iw_vhmenu', 'admin', 'get', array('mid' => $mid));
 		if (!$registre) {
 			return LogUtil::registerError (__('Menu option not found', $dom));
 		}
@@ -344,7 +344,7 @@ function iw_vhmenu_admin_new_sub($args)
 	}
 
 	// Get the images available in images directory
-	$dir = pnModGetVar('iw_main', 'documentRoot').'/'.pnModGetVar('iw_vhmenu', 'imagedir');
+	$dir = ModUtil::getVar('iw_main', 'documentRoot').'/'.ModUtil::getVar('iw_vhmenu', 'imagedir');
 	if (is_dir($dir)) {
 		if ($dh = opendir($dir)) {
 			while (($file = readdir($dh)) !== false) {
@@ -365,45 +365,45 @@ function iw_vhmenu_admin_new_sub($args)
 	// $subgroups = $dades -> Subgrups($group,__('All', $dom));
 
 	// get the intranet groups
-	$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-	$grups = pnModFunc('iw_main', 'user', 'getAllGroups', array('plus' => __('All', $dom),
-																'less' => pnModGetVar('iw_myrole', 'rolegroup'),
+	$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+	$grups = ModUtil::func('iw_main', 'user', 'getAllGroups', array('plus' => __('All', $dom),
+																'less' => ModUtil::getVar('iw_myrole', 'rolegroup'),
 																'sv' => $sv));
 	$grups[] = array(	'id' => '-1',
 						'name' => __('Unregistered', $dom));
 
 	// Init the height i width values
-	$height = ($height == 0) ? pnModGetVar('iw_vhmenu', 'height') : $height;
-	$width = ($width == 0) ? pnModGetVar('iw_vhmenu', 'width') : $width;
+	$height = ($height == 0) ? ModUtil::getVar('iw_vhmenu', 'height') : $height;
+	$width = ($width == 0) ? ModUtil::getVar('iw_vhmenu', 'width') : $width;
 
 	// get the intranet groups again without the possibility of all the groups
-	$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-	$grups1 = pnModFunc('iw_main', 'user', 'getAllGroups', array('sv' => $sv,
-																	'less' => pnModGetVar('iw_myrole', 'rolegroup')));
+	$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+	$grups1 = ModUtil::func('iw_main', 'user', 'getAllGroups', array('sv' => $sv,
+																	'less' => ModUtil::getVar('iw_myrole', 'rolegroup')));
 
-	$security = pnSecGenAuthKey();
-	$pnRender -> assign('security', $security);
-	$pnRender -> assign('mid', $mid);
-	$pnRender -> assign('level', $level);
-	$pnRender -> assign('text', $text);
-	$pnRender -> assign('url', $url);
-	$pnRender -> assign('descriu', $descriu);	
-	$pnRender -> assign('width', $width);
-	$pnRender -> assign('height', $height);
-	$pnRender -> assign('bg_image', $bg_image);	
-	$pnRender -> assign('images', $images);
-	$pnRender -> assign('initImagePath', pnModGetVar('iw_vhmenu', 'imagedir'));
-	$pnRender -> assign('ip_parent', $ip_parent);	
-	$pnRender -> assign('grafic', $grafic);
-	$pnRender -> assign('image1', $image1);
-	$pnRender -> assign('image2', $image2);
-	$pnRender -> assign('active', $active);
-	$pnRender -> assign('grups', $grups);
-	$pnRender -> assign('grup', $grup);	
-	$pnRender -> assign('subgrups', $subgrups);
-	$pnRender -> assign('subgrup', $subgrup);
+	$security = SecurityUtil::generateAuthKey();
+	$view -> assign('security', $security);
+	$view -> assign('mid', $mid);
+	$view -> assign('level', $level);
+	$view -> assign('text', $text);
+	$view -> assign('url', $url);
+	$view -> assign('descriu', $descriu);	
+	$view -> assign('width', $width);
+	$view -> assign('height', $height);
+	$view -> assign('bg_image', $bg_image);	
+	$view -> assign('images', $images);
+	$view -> assign('initImagePath', ModUtil::getVar('iw_vhmenu', 'imagedir'));
+	$view -> assign('ip_parent', $ip_parent);	
+	$view -> assign('grafic', $grafic);
+	$view -> assign('image1', $image1);
+	$view -> assign('image2', $image2);
+	$view -> assign('active', $active);
+	$view -> assign('grups', $grups);
+	$view -> assign('grup', $grup);	
+	$view -> assign('subgrups', $subgrups);
+	$view -> assign('subgrup', $subgrup);
 	
-	return $pnRender -> fetch('iw_vhmenu_admin_new_sub.htm');
+	return $view -> fetch('iw_vhmenu_admin_new_sub.htm');
 }
 
 /**
@@ -428,11 +428,11 @@ function iw_vhmenu_admin_menu_items($args)
 	}
 
 	if($id_parent != 0){
-		pnModSetVar('iw_vhmenu', 'arbre', pnModGetVar('iw_vhmenu','arbre').$id_parent.'$');
+		ModUtil::setVar('iw_vhmenu', 'arbre', ModUtil::getVar('iw_vhmenu','arbre').$id_parent.'$');
 	}
-	$itemsmenu = pnModAPIFunc('iw_vhmenu', 'admin', 'getall', array('id' => $id_parent));
+	$itemsmenu = ModUtil::apiFunc('iw_vhmenu', 'admin', 'getall', array('id' => $id_parent));
 	foreach ($itemsmenu as $itemmenu){
-		pnModFunc('iw_vhmenu', 'admin', 'menu_items', array('id_parent' => $itemmenu['mid']));
+		ModUtil::func('iw_vhmenu', 'admin', 'menu_items', array('id_parent' => $itemmenu['mid']));
 	}
 
 	return $menuarray;
@@ -456,11 +456,11 @@ function iw_vhmenu_admin_add_group($args)
 	}
 
 	// Create output object
-	$pnRender = pnRender::getInstance('iw_vhmenu',false);
+	$view = Zikula_View::getInstance('iw_vhmenu',false);
 		
 	// A copy is required, so the information is loaded
 	if(!empty($mid)){	
-		$registre = pnModAPIFunc('iw_vhmenu', 'admin', 'get', array('mid' => $mid));
+		$registre = ModUtil::apiFunc('iw_vhmenu', 'admin', 'get', array('mid' => $mid));
 		if (!$registre) {
 			return LogUtil::registerError (__('Menu option not found', $dom));
 		}
@@ -479,23 +479,23 @@ function iw_vhmenu_admin_add_group($args)
 	}
 
 	// get the intranet groups
-	$sv    = pnModFunc('iw_main', 'user', 'genSecurityValue');
-	$grups = pnModFunc('iw_main', 'user', 'getAllGroups', array('plus' => __('All', $dom),
-																 'less' => pnModGetVar('iw_myrole', 'rolegroup'),
+	$sv    = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+	$grups = ModUtil::func('iw_main', 'user', 'getAllGroups', array('plus' => __('All', $dom),
+																 'less' => ModUtil::getVar('iw_myrole', 'rolegroup'),
 																 'sv' => $sv));
 	$grups[] = array('id' => '-1',
 				'name' => __('Unregistered', $dom));
 
-	$security = pnSecGenAuthKey();
-	$pnRender -> assign('security', $security);
-	$pnRender -> assign('mid', $mid);
-	$pnRender -> assign('text', $text);
-	$pnRender -> assign('descriu', $descriu);
-	$pnRender -> assign('url', $url);
-	$pnRender -> assign('groups_db', $groups_db);
-	$pnRender -> assign('grups', $grups);
+	$security = SecurityUtil::generateAuthKey();
+	$view -> assign('security', $security);
+	$view -> assign('mid', $mid);
+	$view -> assign('text', $text);
+	$view -> assign('descriu', $descriu);
+	$view -> assign('url', $url);
+	$view -> assign('groups_db', $groups_db);
+	$view -> assign('grups', $grups);
 
-	return $pnRender -> fetch('iw_vhmenu_admin_add_group.htm');
+	return $view -> fetch('iw_vhmenu_admin_add_group.htm');
 }
 
 
@@ -533,7 +533,7 @@ function iw_vhmenu_admin_create($args)
 
 	// Confirm authorisation code
 	if (!SecurityUtil::confirmAuthKey()) {
-		return LogUtil::registerAuthidError (pnModURL('iw_vhmenu', 'admin', 'main'));
+		return LogUtil::registerAuthidError (ModUtil::url('iw_vhmenu', 'admin', 'main'));
 	}
 
 	$active = ($active == 'on') ? 1 : 0;
@@ -549,7 +549,7 @@ function iw_vhmenu_admin_create($args)
 
 	// Modify a menu item
 	if($m == 'e'){
-		$lid = pnModAPIFunc('iw_vhmenu', 'admin', 'update', array('mid' => $mid,
+		$lid = ModUtil::apiFunc('iw_vhmenu', 'admin', 'update', array('mid' => $mid,
 										'text' => $text,
 										'descriu' => $descriu,
 										'active' => $active,
@@ -566,13 +566,13 @@ function iw_vhmenu_admin_create($args)
 			LogUtil::registerStatus (__('The option has been updated successfully', $dom));
 
 			//Reset the users menus for all users
-			$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-			pnModFunc('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
+			$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+			ModUtil::func('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
 											'name' => 'userMenu',
 											'sv' => $sv));
 		}
 	}else{
-		$lid = pnModAPIFunc('iw_vhmenu', 'admin', 'create', array('text' => $text,
+		$lid = ModUtil::apiFunc('iw_vhmenu', 'admin', 'create', array('text' => $text,
 										'descriu' => $descriu,
 										'active' => $active,
 										'target' => $target,
@@ -590,18 +590,18 @@ function iw_vhmenu_admin_create($args)
 			LogUtil::registerStatus (__('A new option has been created', $dom));
 
 			//Reorder the menu items
-			pnModFunc('iw_vhmenu', 'admin', 'reorder', array('id_parent' => 0));
+			ModUtil::func('iw_vhmenu', 'admin', 'reorder', array('id_parent' => 0));
 
 			//Reset the users menus for all users
-			$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-			pnModFunc('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
+			$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+			ModUtil::func('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
 											'name' => 'userMenu',
 											'sv' => $sv));
 		}
 	}
   
 	//Redirect to admin main page
-	return pnRedirect(pnModURL('iw_vhmenu', 'admin', 'main'));
+	return System::redirect(ModUtil::url('iw_vhmenu', 'admin', 'main'));
 }
 
 /**
@@ -637,7 +637,7 @@ function iw_vhmenu_admin_create_sub($args)
 
 	// Confirm authorisation code
 	if (!SecurityUtil::confirmAuthKey()) {
-		return LogUtil::registerAuthidError (pnModURL('iw_vhmenu', 'admin', 'main'));
+		return LogUtil::registerAuthidError (ModUtil::url('iw_vhmenu', 'admin', 'main'));
 	}
 
 	$active = ($active == 'on') ? 1 : 0;
@@ -648,7 +648,7 @@ function iw_vhmenu_admin_create_sub($args)
 	$groups = '$$'.$grup.'|'.$subgrup.'$';
 
 	// Create a submenu item
-	$lid = pnModAPIFunc('iw_vhmenu', 'admin', 'create_sub', array('mid'=>$mid,
+	$lid = ModUtil::apiFunc('iw_vhmenu', 'admin', 'create_sub', array('mid'=>$mid,
 									'text' => $text,
 									'descriu' => $descriu,
 									'active' => $active,
@@ -668,17 +668,17 @@ function iw_vhmenu_admin_create_sub($args)
 		LogUtil::registerStatus (__('A new option has been created', $dom));
 
 		// Reorder the menu items
-		pnModFunc('iw_vhmenu', 'admin', 'reorder', array('id_parent' => $mid));
+		ModUtil::func('iw_vhmenu', 'admin', 'reorder', array('id_parent' => $mid));
 
 		// Reset the users menus for all users
-		$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-		pnModFunc('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
+		$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+		ModUtil::func('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
 										'name' => 'userMenu',
 										'sv' => $sv));
 	}
 
 	// Redirect to admin main page
-	return pnRedirect(pnModURL('iw_vhmenu', 'admin', 'main'));
+	return System::redirect(ModUtil::url('iw_vhmenu', 'admin', 'main'));
 }
 
 /**
@@ -703,7 +703,7 @@ function iw_vhmenu_admin_create_add_group($args)
 
 	// Confirm authorisation code
 	if (!SecurityUtil::confirmAuthKey()) {
-		return LogUtil::registerAuthidError (pnModURL('iw_vhmenu', 'admin', 'main'));
+		return LogUtil::registerAuthidError (ModUtil::url('iw_vhmenu', 'admin', 'main'));
 	}
 
 	// Construct the group string
@@ -711,21 +711,21 @@ function iw_vhmenu_admin_create_add_group($args)
 	$groups = $groups_db.'$'.$grup.'|'.$subgrup.'$';
 
 	// Modify the groups that have access to the menu item
-	$lid = pnModAPIFunc('iw_vhmenu', 'admin', 'modify_grup', array('mid' => $mid,
+	$lid = ModUtil::apiFunc('iw_vhmenu', 'admin', 'modify_grup', array('mid' => $mid,
 									'groups' => $groups));
 	if ($lid != false) {
 		// A new entry has been created
 		LogUtil::registerStatus (__('The access to the option has been granted to a group', $dom));
 
 		//Reset the users menus for all users
-		$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-		pnModFunc('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
+		$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+		ModUtil::func('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
 										'name' => 'userMenu',
 										'sv' => $sv));
 	}
 
 	//Redirect to admin main page
-	return pnRedirect(pnModURL('iw_vhmenu', 'admin', 'main'));
+	return System::redirect(ModUtil::url('iw_vhmenu', 'admin', 'main'));
 }
 
 /**
@@ -742,66 +742,66 @@ function iw_vhmenu_admin_conf()
 	}
 
 	// Create output object
-	$pnRender = pnRender::getInstance('iw_vhmenu',false);
+	$view = Zikula_View::getInstance('iw_vhmenu',false);
 
-	if(!file_exists(pnModGetVar('iw_main', 'documentRoot').'/'.pnModGetVar('iw_vhmenu','imagedir'))){
-		$pnRender -> assign('noFolder', true);
+	if(!file_exists(ModUtil::getVar('iw_main', 'documentRoot').'/'.ModUtil::getVar('iw_vhmenu','imagedir'))){
+		$view -> assign('noFolder', true);
 	}
 
 
-	$menu_vars = array('LowBgColor' => pnModGetVar('iw_vhmenu', 'LowBgColor'),
-				'LowSubBgColor' => pnModGetVar('iw_vhmenu', 'LowSubBgColor'),
-				'HighBgColor' => pnModGetVar('iw_vhmenu', 'HighBgColor'),
-				'HighSubBgColor' => pnModGetVar('iw_vhmenu', 'HighSubBgColor'),
-				'FontLowColor' => pnModGetVar('iw_vhmenu', 'FontLowColor'),
-				'FontSubLowColor' => pnModGetVar('iw_vhmenu', 'FontSubLowColor'),
-				'FontHighColor' => pnModGetVar('iw_vhmenu', 'FontHighColor'),
-				'FontSubHighColor' => pnModGetVar('iw_vhmenu', 'FontSubHighColor'),
-				'BorderColor' => pnModGetVar('iw_vhmenu', 'BorderColor'),
-				'BorderSubColor' => pnModGetVar('iw_vhmenu', 'BorderSubColor'),
-				'BorderWidth' => pnModGetVar('iw_vhmenu', 'BorderWidth'),
-				'BorderBtwnElmnts' => pnModGetVar('iw_vhmenu', 'BorderBtwnElmnts'),
-				'FontFamily' => pnModGetVar('iw_vhmenu', 'FontFamily'),
-				'FontSize' => pnModGetVar('iw_vhmenu', 'FontSize'),
-				'FontBold' => pnModGetVar('iw_vhmenu', 'FontBold'),
-				'FontItalic' => pnModGetVar('iw_vhmenu', 'FontItalic'),
-				'MenuTextCentered' => pnModGetVar('iw_vhmenu', 'MenuTextCentered'),
-				'MenuCentered' => pnModGetVar('iw_vhmenu', 'MenuCentered'),
-				'MenuVerticalCentered' => pnModGetVar('iw_vhmenu', 'MenuVerticalCentered'),
-				'ChildOverlap' => pnModGetVar('iw_vhmenu', 'ChildOverlap'),
-				'ChildVerticalOverlap' => pnModGetVar('iw_vhmenu', 'ChildVerticalOverlap'),
-				'StartTop' => pnModGetVar('iw_vhmenu', 'StartTop'),
-				'StartLeft' => pnModGetVar('iw_vhmenu', 'StartLeft'),
-				'VerCorrect' => pnModGetVar('iw_vhmenu', 'VerCorrect'),
-				'HorCorrect' => pnModGetVar('iw_vhmenu', 'HorCorrect'),
-				'LeftPaddng' => pnModGetVar('iw_vhmenu', 'LeftPaddng'),
-				'TopPaddng' => pnModGetVar('iw_vhmenu', 'TopPaddng'),
-				'FirstLineHorizontal' => pnModGetVar('iw_vhmenu', 'FirstLineHorizontal'),
-				'MenuFramesVertical' => pnModGetVar('iw_vhmenu', 'MenuFramesVertical'),
-				'DissapearDelay' => pnModGetVar('iw_vhmenu', 'DissapearDelay'),
-				'TakeOverBgColor' => pnModGetVar('iw_vhmenu', 'TakeOverBgColor'),
-				'FirstLineFrame' => pnModGetVar('iw_vhmenu', 'FirstLineFrame'),
-				'SecLineFrame' => pnModGetVar('iw_vhmenu', 'SecLineFrame'),
-				'DocTargetFrame' => pnModGetVar('iw_vhmenu', 'DocTargetFrame'),
-				'TargetLoc' => pnModGetVar('iw_vhmenu', 'TargetLoc'),
-				'HideTop' => pnModGetVar('iw_vhmenu', 'HideTop'),
-				'MenuWrap' => pnModGetVar('iw_vhmenu', 'MenuWrap'),
-				'RightToLeft' => pnModGetVar('iw_vhmenu', 'RightToLeft'),
-				'UnfoldsOnClick' => pnModGetVar('iw_vhmenu', 'UnfoldsOnClick'),
-				'WebMasterCheck' => pnModGetVar('iw_vhmenu', 'WebMasterCheck'),
-				'ShowArrow' => pnModGetVar('iw_vhmenu', 'ShowArrow'),
-				'KeepHilite' => pnModGetVar('iw_vhmenu', 'KeepHilite'),
-				'height' => pnModGetVar('iw_vhmenu', 'height'),
-				'width' => pnModGetVar('iw_vhmenu', 'width'),
-				'imagedir' => pnModGetVar('iw_vhmenu', 'imagedir'));
+	$menu_vars = array('LowBgColor' => ModUtil::getVar('iw_vhmenu', 'LowBgColor'),
+				'LowSubBgColor' => ModUtil::getVar('iw_vhmenu', 'LowSubBgColor'),
+				'HighBgColor' => ModUtil::getVar('iw_vhmenu', 'HighBgColor'),
+				'HighSubBgColor' => ModUtil::getVar('iw_vhmenu', 'HighSubBgColor'),
+				'FontLowColor' => ModUtil::getVar('iw_vhmenu', 'FontLowColor'),
+				'FontSubLowColor' => ModUtil::getVar('iw_vhmenu', 'FontSubLowColor'),
+				'FontHighColor' => ModUtil::getVar('iw_vhmenu', 'FontHighColor'),
+				'FontSubHighColor' => ModUtil::getVar('iw_vhmenu', 'FontSubHighColor'),
+				'BorderColor' => ModUtil::getVar('iw_vhmenu', 'BorderColor'),
+				'BorderSubColor' => ModUtil::getVar('iw_vhmenu', 'BorderSubColor'),
+				'BorderWidth' => ModUtil::getVar('iw_vhmenu', 'BorderWidth'),
+				'BorderBtwnElmnts' => ModUtil::getVar('iw_vhmenu', 'BorderBtwnElmnts'),
+				'FontFamily' => ModUtil::getVar('iw_vhmenu', 'FontFamily'),
+				'FontSize' => ModUtil::getVar('iw_vhmenu', 'FontSize'),
+				'FontBold' => ModUtil::getVar('iw_vhmenu', 'FontBold'),
+				'FontItalic' => ModUtil::getVar('iw_vhmenu', 'FontItalic'),
+				'MenuTextCentered' => ModUtil::getVar('iw_vhmenu', 'MenuTextCentered'),
+				'MenuCentered' => ModUtil::getVar('iw_vhmenu', 'MenuCentered'),
+				'MenuVerticalCentered' => ModUtil::getVar('iw_vhmenu', 'MenuVerticalCentered'),
+				'ChildOverlap' => ModUtil::getVar('iw_vhmenu', 'ChildOverlap'),
+				'ChildVerticalOverlap' => ModUtil::getVar('iw_vhmenu', 'ChildVerticalOverlap'),
+				'StartTop' => ModUtil::getVar('iw_vhmenu', 'StartTop'),
+				'StartLeft' => ModUtil::getVar('iw_vhmenu', 'StartLeft'),
+				'VerCorrect' => ModUtil::getVar('iw_vhmenu', 'VerCorrect'),
+				'HorCorrect' => ModUtil::getVar('iw_vhmenu', 'HorCorrect'),
+				'LeftPaddng' => ModUtil::getVar('iw_vhmenu', 'LeftPaddng'),
+				'TopPaddng' => ModUtil::getVar('iw_vhmenu', 'TopPaddng'),
+				'FirstLineHorizontal' => ModUtil::getVar('iw_vhmenu', 'FirstLineHorizontal'),
+				'MenuFramesVertical' => ModUtil::getVar('iw_vhmenu', 'MenuFramesVertical'),
+				'DissapearDelay' => ModUtil::getVar('iw_vhmenu', 'DissapearDelay'),
+				'TakeOverBgColor' => ModUtil::getVar('iw_vhmenu', 'TakeOverBgColor'),
+				'FirstLineFrame' => ModUtil::getVar('iw_vhmenu', 'FirstLineFrame'),
+				'SecLineFrame' => ModUtil::getVar('iw_vhmenu', 'SecLineFrame'),
+				'DocTargetFrame' => ModUtil::getVar('iw_vhmenu', 'DocTargetFrame'),
+				'TargetLoc' => ModUtil::getVar('iw_vhmenu', 'TargetLoc'),
+				'HideTop' => ModUtil::getVar('iw_vhmenu', 'HideTop'),
+				'MenuWrap' => ModUtil::getVar('iw_vhmenu', 'MenuWrap'),
+				'RightToLeft' => ModUtil::getVar('iw_vhmenu', 'RightToLeft'),
+				'UnfoldsOnClick' => ModUtil::getVar('iw_vhmenu', 'UnfoldsOnClick'),
+				'WebMasterCheck' => ModUtil::getVar('iw_vhmenu', 'WebMasterCheck'),
+				'ShowArrow' => ModUtil::getVar('iw_vhmenu', 'ShowArrow'),
+				'KeepHilite' => ModUtil::getVar('iw_vhmenu', 'KeepHilite'),
+				'height' => ModUtil::getVar('iw_vhmenu', 'height'),
+				'width' => ModUtil::getVar('iw_vhmenu', 'width'),
+				'imagedir' => ModUtil::getVar('iw_vhmenu', 'imagedir'));
 
-	$security = pnSecGenAuthKey();
-	$pnRender -> assign('security', $security);
+	$security = SecurityUtil::generateAuthKey();
+	$view -> assign('security', $security);
     $multizk = (isset($GLOBALS['PNConfig']['Multisites']['multi']) && $GLOBALS['PNConfig']['Multisites']['multi'] == 1) ? 1 : 0;
-	$pnRender -> assign('multizk', $multizk);
-	$pnRender -> assign('directoriroot', pnModGetVar('iw_main', 'documentRoot'));
-	$pnRender -> assign('menu_vars',$menu_vars);
-	return $pnRender -> fetch('iw_vhmenu_admin_conf.htm');
+	$view -> assign('multizk', $multizk);
+	$view -> assign('directoriroot', ModUtil::getVar('iw_main', 'documentRoot'));
+	$view -> assign('menu_vars',$menu_vars);
+	return $view -> fetch('iw_vhmenu_admin_conf.htm');
 }
 
 /**
@@ -878,65 +878,65 @@ function iw_vhmenu_admin_conf_update($args)
 
 	// Confirm authorisation code
 	if (!SecurityUtil::confirmAuthKey()) {
-		return LogUtil::registerAuthidError (pnModURL('iw_vhmenu', 'admin', 'main'));
+		return LogUtil::registerAuthidError (ModUtil::url('iw_vhmenu', 'admin', 'main'));
 	}
 
-	pnModSetVar('iw_vhmenu', 'LowBgColor', $LowBgColor);
-	pnModSetVar('iw_vhmenu', 'LowSubBgColor', $LowSubBgColor);
-	pnModSetVar('iw_vhmenu', 'HighBgColor', $HighBgColor);
-	pnModSetVar('iw_vhmenu', 'HighSubBgColor', $HighSubBgColor);
-	pnModSetVar('iw_vhmenu', 'FontLowColor', $FontLowColor);
-	pnModSetVar('iw_vhmenu', 'FontSubLowColor', $FontSubLowColor);
-	pnModSetVar('iw_vhmenu', 'FontHighColor', $FontHighColor);
-	pnModSetVar('iw_vhmenu', 'FontSubHighColor', $FontSubHighColor);
-	pnModSetVar('iw_vhmenu', 'BorderColor', $BorderColor);
-	pnModSetVar('iw_vhmenu', 'BorderSubColor', $BorderSubColor);
-	pnModSetVar('iw_vhmenu', 'BorderWidth', $BorderWidth);
-	pnModSetVar('iw_vhmenu', 'BorderBtwnElmnts', $BorderBtwnElmnts);
-	pnModSetVar('iw_vhmenu', 'FontFamily', $FontFamily);
-	pnModSetVar('iw_vhmenu', 'FontSize', $FontSize);
-	pnModSetVar('iw_vhmenu', 'FontBold', $FontBold);
-	pnModSetVar('iw_vhmenu', 'FontItalic', $FontItalic);
-	pnModSetVar('iw_vhmenu', 'MenuTextCentered', $MenuTextCentered);
-	pnModSetVar('iw_vhmenu', 'MenuCentered', $MenuCentered);
-	pnModSetVar('iw_vhmenu', 'MenuVerticalCentered', $MenuVerticalCentered);
-	pnModSetVar('iw_vhmenu', 'ChildOverlap', $ChildOverlap);
-	pnModSetVar('iw_vhmenu', 'ChildVerticalOverlap', $ChildVerticalOverlap);
-	pnModSetVar('iw_vhmenu', 'StartTop', $StartTop);
-	pnModSetVar('iw_vhmenu', 'StartLeft', $StartLeft);
-	//pnModSetVar('iw_vhmenu', 'VerCorrect', $VerCorrect);
-	//pnModSetVar('iw_vhmenu', 'HorCorrect', $HorCorrect);
-	pnModSetVar('iw_vhmenu', 'LeftPaddng', $LeftPaddng);
-	pnModSetVar('iw_vhmenu', 'TopPaddng', $TopPaddng);
-	pnModSetVar('iw_vhmenu', 'FirstLineHorizontal', $FirstLineHorizontal);
-	//pnModSetVar('iw_vhmenu', 'MenuFramesVertical', $MenuFramesVertical);
-	pnModSetVar('iw_vhmenu', 'DissapearDelay', $DissapearDelay);
-	//pnModSetVar('iw_vhmenu', 'TakeOverBgColor', $TakeOverBgColor);
-	//pnModSetVar('iw_vhmenu', 'FirstLineFrame', $FirstLineFrame);
-	//pnModSetVar('iw_vhmenu', 'SecLineFrame', $SecLineFrame);
-	//pnModSetVar('iw_vhmenu', 'DocTargetFrame', $DocTargetFrame);
-	//pnModSetVar('iw_vhmenu', 'TargetLoc', $TargetLoc);
-	//pnModSetVar('iw_vhmenu', 'HideTop', $HideTop);
-	//pnModSetVar('iw_vhmenu', 'MenuWrap', $MenuWrap);
-	pnModSetVar('iw_vhmenu', 'RightToLeft', $RightToLeft);
-	pnModSetVar('iw_vhmenu', 'UnfoldsOnClick', $UnfoldsOnClick);
-	//pnModSetVar('iw_vhmenu', 'WebMasterCheck', $WebMasterCheck);
-	pnModSetVar('iw_vhmenu', 'ShowArrow', $ShowArrow);
-	pnModSetVar('iw_vhmenu', 'KeepHilite', $KeepHilite);
-	pnModSetVar('iw_vhmenu', 'height', $height);
-	pnModSetVar('iw_vhmenu', 'width', $width);
-	pnModSetVar('iw_vhmenu', 'imagedir', $imagedir);
+	ModUtil::setVar('iw_vhmenu', 'LowBgColor', $LowBgColor);
+	ModUtil::setVar('iw_vhmenu', 'LowSubBgColor', $LowSubBgColor);
+	ModUtil::setVar('iw_vhmenu', 'HighBgColor', $HighBgColor);
+	ModUtil::setVar('iw_vhmenu', 'HighSubBgColor', $HighSubBgColor);
+	ModUtil::setVar('iw_vhmenu', 'FontLowColor', $FontLowColor);
+	ModUtil::setVar('iw_vhmenu', 'FontSubLowColor', $FontSubLowColor);
+	ModUtil::setVar('iw_vhmenu', 'FontHighColor', $FontHighColor);
+	ModUtil::setVar('iw_vhmenu', 'FontSubHighColor', $FontSubHighColor);
+	ModUtil::setVar('iw_vhmenu', 'BorderColor', $BorderColor);
+	ModUtil::setVar('iw_vhmenu', 'BorderSubColor', $BorderSubColor);
+	ModUtil::setVar('iw_vhmenu', 'BorderWidth', $BorderWidth);
+	ModUtil::setVar('iw_vhmenu', 'BorderBtwnElmnts', $BorderBtwnElmnts);
+	ModUtil::setVar('iw_vhmenu', 'FontFamily', $FontFamily);
+	ModUtil::setVar('iw_vhmenu', 'FontSize', $FontSize);
+	ModUtil::setVar('iw_vhmenu', 'FontBold', $FontBold);
+	ModUtil::setVar('iw_vhmenu', 'FontItalic', $FontItalic);
+	ModUtil::setVar('iw_vhmenu', 'MenuTextCentered', $MenuTextCentered);
+	ModUtil::setVar('iw_vhmenu', 'MenuCentered', $MenuCentered);
+	ModUtil::setVar('iw_vhmenu', 'MenuVerticalCentered', $MenuVerticalCentered);
+	ModUtil::setVar('iw_vhmenu', 'ChildOverlap', $ChildOverlap);
+	ModUtil::setVar('iw_vhmenu', 'ChildVerticalOverlap', $ChildVerticalOverlap);
+	ModUtil::setVar('iw_vhmenu', 'StartTop', $StartTop);
+	ModUtil::setVar('iw_vhmenu', 'StartLeft', $StartLeft);
+	//ModUtil::setVar('iw_vhmenu', 'VerCorrect', $VerCorrect);
+	//ModUtil::setVar('iw_vhmenu', 'HorCorrect', $HorCorrect);
+	ModUtil::setVar('iw_vhmenu', 'LeftPaddng', $LeftPaddng);
+	ModUtil::setVar('iw_vhmenu', 'TopPaddng', $TopPaddng);
+	ModUtil::setVar('iw_vhmenu', 'FirstLineHorizontal', $FirstLineHorizontal);
+	//ModUtil::setVar('iw_vhmenu', 'MenuFramesVertical', $MenuFramesVertical);
+	ModUtil::setVar('iw_vhmenu', 'DissapearDelay', $DissapearDelay);
+	//ModUtil::setVar('iw_vhmenu', 'TakeOverBgColor', $TakeOverBgColor);
+	//ModUtil::setVar('iw_vhmenu', 'FirstLineFrame', $FirstLineFrame);
+	//ModUtil::setVar('iw_vhmenu', 'SecLineFrame', $SecLineFrame);
+	//ModUtil::setVar('iw_vhmenu', 'DocTargetFrame', $DocTargetFrame);
+	//ModUtil::setVar('iw_vhmenu', 'TargetLoc', $TargetLoc);
+	//ModUtil::setVar('iw_vhmenu', 'HideTop', $HideTop);
+	//ModUtil::setVar('iw_vhmenu', 'MenuWrap', $MenuWrap);
+	ModUtil::setVar('iw_vhmenu', 'RightToLeft', $RightToLeft);
+	ModUtil::setVar('iw_vhmenu', 'UnfoldsOnClick', $UnfoldsOnClick);
+	//ModUtil::setVar('iw_vhmenu', 'WebMasterCheck', $WebMasterCheck);
+	ModUtil::setVar('iw_vhmenu', 'ShowArrow', $ShowArrow);
+	ModUtil::setVar('iw_vhmenu', 'KeepHilite', $KeepHilite);
+	ModUtil::setVar('iw_vhmenu', 'height', $height);
+	ModUtil::setVar('iw_vhmenu', 'width', $width);
+	ModUtil::setVar('iw_vhmenu', 'imagedir', $imagedir);
 
 	LogUtil::registerStatus (__('Menu configuration completed successfully', $dom));
 
 	// Reset the users menus for all users
-	$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-	pnModFunc('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
+	$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+	ModUtil::func('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
 									'name' => 'userMenu',
 									'sv' => $sv));
 
 	// Redirect to admin config page
-	return pnRedirect(pnModURL('iw_vhmenu', 'admin', 'conf'));
+	return System::redirect(ModUtil::url('iw_vhmenu', 'admin', 'conf'));
 }
 
 /**
@@ -959,46 +959,46 @@ function iw_vhmenu_admin_delete($args)
 	}
 
 	// Create output object
-	$pnRender = pnRender::getInstance('iw_vhmenu',false);
+	$view = Zikula_View::getInstance('iw_vhmenu',false);
 
 	//Cridem la funciï¿œ de l'API de l'usuari que ens retornarï¿œ la inforamciï¿œ del registre demanat
-	$registre = pnModAPIFunc('iw_vhmenu', 'admin', 'get', array('mid' => $mid));
+	$registre = ModUtil::apiFunc('iw_vhmenu', 'admin', 'get', array('mid' => $mid));
 	if (!$registre) {
 		return LogUtil::registerError (__('Menu option not found', $dom));
 	}
 
 	// Ask for confirmation
 	if (empty($confirmation)) {
-		$pnRender -> assign('text',$registre['text']);
-		$pnRender -> assign('mid',$mid);
-		$security = pnSecGenAuthKey();
-		$pnRender -> assign('security',$security);
+		$view -> assign('text',$registre['text']);
+		$view -> assign('mid',$mid);
+		$security = SecurityUtil::generateAuthKey();
+		$view -> assign('security',$security);
 		//get all the submenus that have to be deleted
-		$submenusId_array = pnModFunc('iw_vhmenu', 'admin', 'getsubmenusIds', array('mid' => $mid));
+		$submenusId_array = ModUtil::func('iw_vhmenu', 'admin', 'getsubmenusIds', array('mid' => $mid));
 		$submenusId = implode(",", $submenusId_array);
-		$pnRender -> assign('submenusId',$submenusId);
-		return $pnRender -> fetch('iw_vhmenu_admin_del.htm');
+		$view -> assign('submenusId',$submenusId);
+		return $view -> fetch('iw_vhmenu_admin_del.htm');
 	}	
 	
 	// User has confirmed the deletion
 	// Confirm authorisation code
 	if (!SecurityUtil::confirmAuthKey()) {
-		return LogUtil::registerAuthidError (pnModURL('iw_vhmenu', 'admin', 'main'));
+		return LogUtil::registerAuthidError (ModUtil::url('iw_vhmenu', 'admin', 'main'));
 	}
 
-	if (pnModAPIFunc('iw_vhmenu', 'admin', 'delete', array('submenusId' => $submenusId))) {
+	if (ModUtil::apiFunc('iw_vhmenu', 'admin', 'delete', array('submenusId' => $submenusId))) {
 		// The deletion has been successful
 		LogUtil::registerStatus (__('The option and its submenus have been deleted', $dom));
 
 		// Reset the users menus for all users
-		$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-		pnModFunc('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
+		$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+		ModUtil::func('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
 										'name' => 'userMenu',
 										'sv' => $sv));
 	}
 
 	// Redirect user to admin main page
-	return pnRedirect(pnModURL('iw_vhmenu', 'admin', 'main'));
+	return System::redirect(ModUtil::url('iw_vhmenu', 'admin', 'main'));
 }
 
 /**
@@ -1022,23 +1022,23 @@ function iw_vhmenu_admin_del_group($args)
 	}
 
 	// Create output object
-	$pnRender = pnRender::getInstance('iw_vhmenu',false);
+	$view = Zikula_View::getInstance('iw_vhmenu',false);
 
 	// Gets the item information
-	$registre = pnModAPIFunc('iw_vhmenu', 'admin', 'get', array('mid' => $mid));
+	$registre = ModUtil::apiFunc('iw_vhmenu', 'admin', 'get', array('mid' => $mid));
 	if (!$registre) {
 		return LogUtil::registerError (__('Menu option not found', $dom));
 	}
 
-	$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-	$grupsInfo = pnModFunc('iw_main', 'user', 'getAllGroupsInfo', array('sv' => $sv,
-																		'less' => pnModGetVar('iw_myrole', 'rolegroup')));
+	$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+	$grupsInfo = ModUtil::func('iw_main', 'user', 'getAllGroupsInfo', array('sv' => $sv,
+																		'less' => ModUtil::getVar('iw_myrole', 'rolegroup')));
 	
 	// Ask for confirmation
 	if (empty($confirmation)) {
-		$pnRender -> assign('mid',$mid);
-		$security = pnSecGenAuthKey();
-		$pnRender -> assign('security',$security);
+		$view -> assign('mid',$mid);
+		$security = SecurityUtil::generateAuthKey();
+		$view -> assign('security',$security);
 		$group_subgroup = explode('|',$group);
 		$name_group = ($group_subgroup[0] == '0') ? __('All',$dom) : $grupsInfo[$group_subgroup[0]];
 		if($group_subgroup[0] == '-1'){$name_group = __('Unregistered', $dom);}
@@ -1048,33 +1048,33 @@ function iw_vhmenu_admin_del_group($args)
 		if($group_subgroup[1] != '0'){
 			$group .= '/'.$name_subgroup;
 		}
-		$pnRender -> assign('groups', $groups);
-		$pnRender -> assign('text', $registre['text']);
-		$pnRender -> assign('group', $group);
-		return $pnRender -> fetch('iw_vhmenu_admin_del_group.htm');
+		$view -> assign('groups', $groups);
+		$view -> assign('text', $registre['text']);
+		$view -> assign('group', $group);
+		return $view -> fetch('iw_vhmenu_admin_del_group.htm');
 	}	
 		
 	// User has confirmed the deletion
 	// Confirm authorisation code
 	if (!SecurityUtil::confirmAuthKey()) {
-		return LogUtil::registerAuthidError (pnModURL('iw_vhmenu', 'admin', 'main'));
+		return LogUtil::registerAuthidError (ModUtil::url('iw_vhmenu', 'admin', 'main'));
 	}
 
 	// Modify the groups information in database
-	if (pnModAPIFunc('iw_vhmenu', 'admin', 'modify_grup', array('mid' => $mid,
+	if (ModUtil::apiFunc('iw_vhmenu', 'admin', 'modify_grup', array('mid' => $mid,
 									'groups' => $groups))) {
         	// L'esborrament ha estat un ï¿œxit i ho notifiquem
 		LogUtil::registerStatus (__('The access of the group to the option has been revoked', $dom));
 
 		//Reset the users menus for all users
-		$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-		pnModFunc('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
+		$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+		ModUtil::func('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
 										'name' => 'userMenu',
 										'sv' => $sv));
 	}
 
 	// Redirect user to admin main page
-	return pnRedirect(pnModURL('iw_vhmenu', 'admin', 'main'));
+	return System::redirect(ModUtil::url('iw_vhmenu', 'admin', 'main'));
 }
 
 /**
@@ -1096,7 +1096,7 @@ function iw_vhmenu_admin_order($args)
 	}
 
 	// Create output object
-	$pnRender = pnRender::getInstance('iw_vhmenu',false);
+	$view = Zikula_View::getInstance('iw_vhmenu',false);
 	
 	// Security check
 	if (!SecurityUtil::checkPermission( 'iw_vhmenu::', '::', ACCESS_ADMIN)) {
@@ -1105,26 +1105,26 @@ function iw_vhmenu_admin_order($args)
 
 	// change item order
 	// Get item information
-	$item = pnModAPIFunc('iw_vhmenu', 'admin', 'get', array('mid' => $mid));
+	$item = ModUtil::apiFunc('iw_vhmenu', 'admin', 'get', array('mid' => $mid));
 	if (!$item) {
 		return LogUtil::registerError (__('Menu option not found', $dom));
 	}
 
 	$iorder = ($puts == '-1') ? $item['iorder'] + 3 : $item['iorder'] - 3;
-	pnModAPIFunc('iw_vhmenu', 'admin', 'put_order', array('mid' => $mid,
+	ModUtil::apiFunc('iw_vhmenu', 'admin', 'put_order', array('mid' => $mid,
 								'iorder' => $iorder));	
 
 	// Reorder the items
-	pnModFunc('iw_vhmenu', 'admin', 'reorder', array('id_parent' => $id_parent));
+	ModUtil::func('iw_vhmenu', 'admin', 'reorder', array('id_parent' => $id_parent));
 
 	// Reset the users menus for all users
-	$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-	pnModFunc('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
+	$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+	ModUtil::func('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
 									'name' => 'userMenu',
 									'sv' => $sv));
 	
 	// Redirect to admin main page
-	return pnRedirect(pnModURL('iw_vhmenu', 'admin', 'main'));
+	return System::redirect(ModUtil::url('iw_vhmenu', 'admin', 'main'));
 }
 
 /**
@@ -1149,10 +1149,10 @@ function iw_vhmenu_admin_reorder($args)
 	}
 
 	// Create output object
-	$pnRender = pnRender::getInstance('iw_vhmenu',false);
+	$view = Zikula_View::getInstance('iw_vhmenu',false);
 
 	// Get item information
-	$items = pnModAPIFunc('iw_vhmenu', 'admin', 'getall',array('id_parent' => $id_parent,
+	$items = ModUtil::apiFunc('iw_vhmenu', 'admin', 'getall',array('id_parent' => $id_parent,
 									'mid'=>$mid));
 	if (!$items) {
 		return LogUtil::registerError (__('Menu option not found', $dom));
@@ -1161,12 +1161,12 @@ function iw_vhmenu_admin_reorder($args)
 	// Reorder all the items with the values 0 2 4 6 8...
 	foreach($items as $item){
 		$i = $i + 2;	
-		pnModAPIFunc('iw_vhmenu', 'admin', 'put_order', array('mid' => $item['mid'],
+		ModUtil::apiFunc('iw_vhmenu', 'admin', 'put_order', array('mid' => $item['mid'],
 									'iorder' => $i));
 	}
 	
 	//Redirect user to admin main page
-	return pnRedirect(pnModURL('iw_vhmenu', 'admin', 'main'));
+	return System::redirect(ModUtil::url('iw_vhmenu', 'admin', 'main'));
 }
 
 
@@ -1189,10 +1189,10 @@ function iw_vhmenu_admin_movelevel($args)
 	}
 
 	// Create output object
-	$pnRender = pnRender::getInstance('iw_vhmenu',false);
+	$view = Zikula_View::getInstance('iw_vhmenu',false);
 
 	// Get item information
-	$registre = pnModAPIFunc('iw_vhmenu', 'admin', 'get', array('mid' => $mid));
+	$registre = ModUtil::apiFunc('iw_vhmenu', 'admin', 'get', array('mid' => $mid));
 	if (!$registre) {
 		return LogUtil::registerError (__('Menu option not found', $dom));
 	}
@@ -1200,9 +1200,9 @@ function iw_vhmenu_admin_movelevel($args)
 	// Ask confirmation to change the level
 	if (empty($confirmation)) {
 		//Agafem els nemï¿œs que tenen per id_parent el mateix que el registre que es vol pujar
-		$records = pnModAPIFunc('iw_vhmenu', 'admin', 'getall', array('id_parent' => '-1'));
+		$records = ModUtil::apiFunc('iw_vhmenu', 'admin', 'getall', array('id_parent' => '-1'));
 		// get all the submenus from the menu
-		$submenusId = pnModFunc('iw_vhmenu', 'admin', 'getsubmenusIds', array('mid' => $mid));
+		$submenusId = ModUtil::func('iw_vhmenu', 'admin', 'getsubmenusIds', array('mid' => $mid));
 
 		// add the root in the records array
 		$records_array[] = array('mid' => 0, 'text' => __('Root', $dom));
@@ -1212,35 +1212,35 @@ function iw_vhmenu_admin_movelevel($args)
 			}
 		}
 
-		$pnRender -> assign('registres', $records_array);
-		$pnRender -> assign('text', $registre['text']);
-		$pnRender -> assign('mid', $mid);
-		$security = pnSecGenAuthKey();
-		$pnRender -> assign('security', $security);
-		return $pnRender -> fetch('iw_vhmenu_admin_movelevel.htm');
+		$view -> assign('registres', $records_array);
+		$view -> assign('text', $registre['text']);
+		$view -> assign('mid', $mid);
+		$security = SecurityUtil::generateAuthKey();
+		$view -> assign('security', $security);
+		return $view -> fetch('iw_vhmenu_admin_movelevel.htm');
 	}	
 		
 	// User has confirmed the action
 	// Confirm authorisation code
 	if (!SecurityUtil::confirmAuthKey()) {
-		return LogUtil::registerAuthidError (pnModURL('iw_vhmenu', 'admin', 'main'));
+		return LogUtil::registerAuthidError (ModUtil::url('iw_vhmenu', 'admin', 'main'));
 	}
 	
 	// Up the item level
-	if (pnModAPIFunc('iw_vhmenu', 'admin', 'move_level', array('mid' => $mid,
+	if (ModUtil::apiFunc('iw_vhmenu', 'admin', 'move_level', array('mid' => $mid,
 									'id_parent' => $upmid))) {
 		// Update successful
 		LogUtil::registerStatus (__('The option has been moved to the parent level', $dom));
 
 		// Reset the users menus for all users
-		$sv = pnModFunc('iw_main', 'user', 'genSecurityValue');
-		pnModFunc('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
+		$sv = ModUtil::func('iw_main', 'user', 'genSecurityValue');
+		ModUtil::func('iw_main', 'user', 'usersVarsDelModule', array('module' => 'iw_vhmenu',
 										'name' => 'userMenu',
 										'sv' => $sv));
 	}
 
 	// Redirect user to admin main page
-	return pnRedirect(pnModURL('iw_vhmenu', 'admin', 'main'));
+	return System::redirect(ModUtil::url('iw_vhmenu', 'admin', 'main'));
 }
 
 /**
@@ -1260,10 +1260,10 @@ function iw_vhmenu_admin_getsubmenusIds($args)
 
 	$records_array[] = $mid;
 
-	$records = pnModAPIFunc('iw_vhmenu', 'admin', 'getall', array('id_parent' => $mid));
+	$records = ModUtil::apiFunc('iw_vhmenu', 'admin', 'getall', array('id_parent' => $mid));
 
 	foreach($records as $record){
-		$submenusId = pnModFunc('iw_vhmenu', 'admin', 'getsubmenusIds', array('mid' => $record['mid']));
+		$submenusId = ModUtil::func('iw_vhmenu', 'admin', 'getsubmenusIds', array('mid' => $record['mid']));
 		$records_array = array_merge($records_array,$submenusId);
 	}
 

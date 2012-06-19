@@ -14,7 +14,7 @@ function iw_vhmenu_userapi_getAllMenuItems()
 		return LogUtil::registerPermissionError();
 	}
 
-	$pntable = pnDBGetTables();
+	$pntable = DBUtil::getTables();
 	$c = $pntable['iw_vhmenu_column'];
 	$where = "$c[id_parent]=0 AND $c[active]=1";
 	$orderby = "$c[iorder]";
@@ -48,7 +48,7 @@ function iw_vhmenu_userapi_getAllSubMenuItems($args)
 		return LogUtil::registerPermissionError();
 	}
 
-	$pntable = pnDBGetTables();
+	$pntable = DBUtil::getTables();
 	$c = $pntable['iw_vhmenu_column'];
 	$where = "$c[id_parent]=$args[id_parent] AND $c[active]=1";
 	$orderby = "$c[iorder]";

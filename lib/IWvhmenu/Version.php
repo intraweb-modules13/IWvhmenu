@@ -23,4 +23,4 @@ $modversion['securityschema'] = array('iw_vhmenu::' => '::');
 $modversion['dependencies'] = array(array('modname' => 'iw_main',
 						'minversion' => '2.0',
 						'maxversion' => '',
-						'status' => PNMODULE_DEPENDENCY_REQUIRED));
+						'status' => ModUtil::DEPENDENCY_REQUIRED));
