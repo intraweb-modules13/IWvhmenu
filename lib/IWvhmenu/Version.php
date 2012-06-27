@@ -5,22 +5,26 @@
  * @author		Albert PÃ©rez Monfort (aperezm@xtec.cat)
  * @return		The version information
  */
-$dom=ZLanguage::getModuleDomain('iw_vhmenu');
-$modversion['name'] = 'iw_vhmenu';
-$modversion['version'] = '2.0';
-$modversion['description'] = __('Provides an interface to manage fully customizable JavaScript menu', $dom);
-$modversion['displayname']    = __('VHMenu', $dom);
-$modversion['url']    = __('iw_vhmenu', $dom);
-$modversion['credits'] = 'pndocs/credits.txt';
-$modversion['help'] = 'pndocs/help.txt';
-$modversion['changelog'] = 'pndocs/changelog.txt';
-$modversion['license'] = 'pndocs/license.txt';
-$modversion['official'] = 0;
-$modversion['author'] = 'Albert Pérez Monfort & Toni Ginard Lladó';
-$modversion['contact'] = 'aperez16@xtec.cat & aginard@xtec.cat';
-$modversion['admin'] = 1;
-$modversion['securityschema'] = array('iw_vhmenu::' => '::');
-$modversion['dependencies'] = array(array('modname' => 'iw_main',
-						'minversion' => '2.0',
-						'maxversion' => '',
-						'status' => ModUtil::DEPENDENCY_REQUIRED));
+class IWvhmenu_Version extends Zikula_AbstractVersion
+{
+    public function getMetaData()
+    {
+        $meta = array();
+        $meta['displayname'] = $this->__("IWvhmenu");
+        $meta['description'] = $this->__("Provides an interface to manage fully customizable JavaScript menu.");
+        $meta['url']         = $this->__("IWvhmenu");
+        $meta['version']     = '3.0.0';
+
+        $meta['securityschema'] = array('IWvhmenu::' => '::');
+        /*
+        $meta['dependencies'] = array(
+                                    array('modname'    => 'IWmain',
+                                          'minversion' => '3.0.0',
+                                          'maxversion' => '',
+                                          'status'     => ModUtil::DEPENDENCY_REQUIRED
+                                    )
+                                );
+        */
+        return $meta;
+    }
+}
