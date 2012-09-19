@@ -39,7 +39,7 @@
         <div class="z-formrow">
             <label for="image1">{gt text="Background image"}</label>
             <select name="image1" onChange="document.images.image1.src='{$baseurl}{modurl modname=IWvhmenu type=user func=getFile fileName=$initImagePath}/'+document.new_menu.image1.options[document.new_menu.image1.selectedIndex].value">
-                    <option value=""></option>
+                <option value=""></option>
                 {section name=images loop=$images}
                 <option {if $image1 eq $images[images].filename}selected{/if} value="{$images[images].filename}">{$images[images].filename}</option>
                 {/section}
@@ -101,7 +101,9 @@
                 <option {if $bg_image eq $images[images].filename}selected{/if} value="{$images[images].filename}">{$images[images].filename}</option>
                 {/section}
             </select>
-            <img name="bgimage" src="{$baseurl}{modurl modname=IWvhmenu type=user func=getFile fileName=$initImagePath}/{$bg_image}" />
+            <div class="z-formnote">
+                <img name="bgimage" src="{$baseurl}{modurl modname=IWvhmenu type=user func=getFile fileName=$initImagePath}/{$bg_image}" />
+            </div>
         </div>
 
         <div class="z-formrow">
